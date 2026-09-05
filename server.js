@@ -147,7 +147,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Server error', message: err.message });
 });
 
-app.listen(PORT, () => {
-    console.log(`✅ ScanGo Server running on http://localhost:${PORT}`);
-    console.log(`📱 API: http://localhost:${PORT}/api`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ ScanGo Server running on port ${PORT}`);
+    console.log(`📱 API: /api`);
 });
