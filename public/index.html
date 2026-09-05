@@ -398,7 +398,16 @@
         <!-- SCANNER PAGE -->
         <div id="scan-page" class="content hidden">
             <h2>📱 Smart QR Scanner</h2>
-            <p style="color: #666; margin-bottom: 20px;">Click products to add to cart</p>
+            <p style="color: #666; margin-bottom: 20px;">Scan a product QR code or select a product below</p>
+
+            <div style="text-align: center; margin-bottom: 25px;">
+                <button class="btn btn-primary" onclick="startCamera()">📷 Open Camera</button>
+                <button class="btn btn-danger" onclick="stopCamera()" id="close-camera-btn" style="display:none;">✕ Close Camera</button>
+            </div>
+
+            <div id="reader" style="width: 100%; max-width: 500px; margin: 0 auto 20px auto; display: none; border-radius: 15px; overflow: hidden;"></div>
+
+            <p id="scan-status" style="text-align: center; color: #667eea; font-weight: 600; display: none;">📷 Point your camera at a product QR code</p>
 
             <div id="products-container" class="products-grid"></div>
 
@@ -489,12 +498,106 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
     <script>
        const API_URL = 'https://scango-project-production.up.railway.app/api'; 
         let cart = [];
         let currentUser = null;
         let selectedPayment = 'upi';
         let products = [];
+
+        // ===============================
+        // QR CAMERA SCANNER
+        // ===============================
+        let html5QrCode = null;
+        let cameraRunning = false;
+        let scanLocked = false;
+
+        async function startCamera() {
+            if (cameraRunning) return;
+
+            const reader = document.getElementById('reader');
+            const status = document.getElementById('scan-status');
+            const closeButton = document.getElementById('close-camera-btn');
+
+            reader.style.display = 'block';
+            status.style.display = 'block';
+            closeButton.style.display = 'inline-block';
+            status.textContent = '📷 Starting camera...';
+
+            try {
+                if (typeof Html5Qrcode === 'undefined') {
+                    throw new Error('QR scanner library failed to load');
+                }
+
+                html5QrCode = new Html5Qrcode('reader');
+
+                await html5QrCode.start(
+                    { facingMode: 'environment' },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess,
+                    onScanFailure
+                );
+
+                cameraRunning = true;
+                scanLocked = false;
+                status.textContent = '📷 Point your camera at a product QR code';
+            } catch (error) {
+                console.error('Camera error:', error);
+                status.textContent = '❌ Unable to access camera. Please allow camera permission.';
+                showToast('❌ Camera permission denied or camera unavailable');
+                reader.style.display = 'none';
+                closeButton.style.display = 'none';
+                html5QrCode = null;
+                cameraRunning = false;
+            }
+        }
+
+        async function stopCamera() {
+            const reader = document.getElementById('reader');
+            const status = document.getElementById('scan-status');
+            const closeButton = document.getElementById('close-camera-btn');
+
+            if (html5QrCode && cameraRunning) {
+                try {
+                    await html5QrCode.stop();
+                    html5QrCode.clear();
+                } catch (error) {
+                    console.error('Error stopping camera:', error);
+                }
+            }
+
+            html5QrCode = null;
+            cameraRunning = false;
+            scanLocked = false;
+            reader.style.display = 'none';
+            status.style.display = 'none';
+            closeButton.style.display = 'none';
+        }
+
+        function onScanSuccess(decodedText) {
+            if (scanLocked) return;
+            scanLocked = true;
+
+            const product = products.find(
+                p => p.id.toLowerCase() === decodedText.trim().toLowerCase()
+            );
+
+            if (!product) {
+                showToast('❌ Product not found: ' + decodedText);
+                scanLocked = false;
+                return;
+            }
+
+            addProduct(product.id, product.name, product.price);
+            showToast('📷 ' + product.name + ' scanned and added!');
+            stopCamera();
+        }
+
+        function onScanFailure(error) {
+            // Keep scanning until a QR code is detected.
+        }
 
         function showToast(message) {
             const toast = document.createElement('div');
@@ -740,6 +843,10 @@
         }
 
         function goToPage(page) {
+            if (page !== 'scan' && cameraRunning) {
+                stopCamera();
+            }
+
             document.querySelectorAll('[id$="-page"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(page + '-page').classList.remove('hidden');
             
