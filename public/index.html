@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScanGo - Smart Shopping Platform</title>
+    <title>ScanGo - Smart QR Shopping Platform</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
 
         /* TOAST */
@@ -18,16 +20,16 @@
             top: 20px;
             right: 20px;
             padding: 16px 24px;
-            border-radius: 8px;
+            border-radius: 12px;
             color: white;
             font-weight: 600;
             animation: slideInRight 0.3s ease-out;
             z-index: 2000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
 
-        .toast.success { background: #10b981; }
-        .toast.error { background: #ef4444; }
+        .toast.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .toast.error { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
 
         @keyframes slideInRight {
             from { opacity: 0; transform: translateX(400px); }
@@ -36,17 +38,17 @@
 
         /* HEADER */
         .header {
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            background: linear-gradient(90deg, #1f2937 0%, #111827 100%);
             color: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px 0;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -55,11 +57,15 @@
         }
 
         .logo {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header-right {
@@ -69,75 +75,78 @@
         }
 
         .user-email {
-            background: rgba(255,255,255,0.1);
+            background: rgba(102, 126, 234, 0.2);
             padding: 10px 16px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 14px;
         }
 
         .logout-btn {
-            background: #ef4444;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
         }
 
         .logout-btn:hover {
-            background: #dc2626;
             transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
         }
 
         /* CONTAINER */
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
         }
 
         .content {
             background: white;
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            animation: fadeIn 0.3s ease-out;
+            border-radius: 16px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .hidden { display: none !important; }
 
         /* AUTH CONTAINER */
         .auth-container {
-            max-width: 420px;
+            max-width: 450px;
             margin: 60px auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
+            border: 3px solid transparent;
+            background-clip: padding-box;
         }
 
         .auth-header {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 40px 30px;
+            padding: 50px 30px;
             text-align: center;
         }
 
         .auth-header h1 {
-            font-size: 32px;
+            font-size: 36px;
             margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .auth-header p {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 15px;
+            opacity: 0.95;
         }
 
         .auth-body {
@@ -146,30 +155,32 @@
 
         input {
             width: 100%;
-            padding: 12px 14px;
-            margin: 12px 0;
-            font-size: 14px;
+            padding: 14px 16px;
+            margin: 14px 0;
+            font-size: 15px;
             border: 2px solid #e5e7eb;
-            border-radius: 6px;
+            border-radius: 10px;
             transition: all 0.3s;
             font-family: inherit;
         }
 
         input:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         input.error {
             border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
         }
 
         .error-msg {
             color: #ef4444;
             font-size: 12px;
-            margin-top: 4px;
+            margin-top: 6px;
             display: none;
+            font-weight: 600;
         }
 
         .error-msg.show {
@@ -178,24 +189,44 @@
 
         .btn {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px;
             font-size: 16px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             cursor: pointer;
-            margin: 20px 0 12px 0;
-            font-weight: 600;
+            margin: 16px 0 10px 0;
+            font-weight: 700;
             transition: all 0.3s;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(239, 68, 68, 0.4);
         }
 
         .btn-secondary {
@@ -207,38 +238,29 @@
             background: #e5e7eb;
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
         }
 
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
+        .btn-warning:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(245, 158, 11, 0.4);
         }
 
         .toggle-link {
             text-align: center;
             font-size: 14px;
             color: #6b7280;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid #e5e7eb;
         }
 
         .toggle-link a {
-            color: #3b82f6;
+            color: #667eea;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
         }
 
@@ -246,64 +268,138 @@
             text-decoration: underline;
         }
 
+        /* SCANNER SECTION */
+        .scanner-section {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 30px;
+            border-radius: 16px;
+            margin: 30px 0;
+            border: 3px dashed #667eea;
+        }
+
+        #reader {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            max-width: 100%;
+            height: auto;
+        }
+
+        .scanner-label {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .scanner-status {
+            text-align: center;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+
+        .qr-result {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #047857;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 10px;
+            font-weight: 600;
+            border-left: 4px solid #10b981;
+        }
+
         /* PRODUCTS GRID */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+            margin: 40px 0;
         }
 
         .product-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             transition: all 0.3s;
             cursor: pointer;
             border: 2px solid transparent;
+            position: relative;
         }
 
         .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-            border-color: #3b82f6;
+            transform: translateY(-8px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+            border-color: #667eea;
         }
 
         .product-icon {
-            font-size: 48px;
-            padding: 24px;
+            font-size: 60px;
+            padding: 28px;
             text-align: center;
-            background: #f3f4f6;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
         }
 
         .product-info {
-            padding: 16px;
+            padding: 20px;
         }
 
         .product-name {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
             color: #1f2937;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .product-price {
-            font-size: 20px;
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .product-qr-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: 700;
-            color: #3b82f6;
         }
 
         /* CART */
         .cart-item {
-            background: #f9fafb;
-            padding: 16px;
-            margin: 12px 0;
-            border-radius: 8px;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            padding: 20px;
+            margin: 16px 0;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 4px solid #3b82f6;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .item-info {
@@ -311,119 +407,141 @@
         }
 
         .item-name {
-            font-weight: 600;
+            font-weight: 700;
             color: #1f2937;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 16px;
         }
 
         .item-price {
             font-size: 14px;
-            color: #6b7280;
+            color: #667eea;
+            font-weight: 600;
         }
 
         .cart-total {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 24px;
-            margin: 24px 0;
-            border-radius: 8px;
-            font-size: 24px;
-            font-weight: 700;
+            padding: 32px;
+            margin: 32px 0;
+            border-radius: 16px;
+            font-size: 32px;
+            font-weight: 800;
             text-align: center;
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
         }
 
         .summary-box {
-            background: #f9fafb;
-            padding: 20px;
-            margin: 16px 0;
-            border-radius: 8px;
-            border-left: 4px solid #3b82f6;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            padding: 28px;
+            margin: 20px 0;
+            border-radius: 16px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
         .summary-line {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 12px 0;
             color: #374151;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-line:last-child {
+            border-bottom: none;
         }
 
         .payment-methods {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin: 16px 0;
+            gap: 16px;
+            margin: 24px 0;
         }
 
         .payment-option {
-            padding: 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 20px;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
             cursor: pointer;
             text-align: center;
             transition: all 0.3s;
+            background: white;
         }
 
         .payment-option:hover {
-            border-color: #3b82f6;
-            background: #eff6ff;
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f3f4ff 100%);
+            transform: translateY(-4px);
         }
 
         .payment-option.active {
-            background: #dbeafe;
-            border-color: #3b82f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
         }
 
         .payment-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .payment-name {
+            font-weight: 700;
+            font-size: 14px;
         }
 
         .button-group {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 12px;
-            margin: 24px 0;
+            gap: 16px;
+            margin: 32px 0;
         }
 
         .button-group .btn {
             margin: 0;
             width: auto;
             flex: 1;
-            min-width: 140px;
+            min-width: 160px;
         }
 
         /* HEADINGS */
-        h1 { font-size: 42px; color: #1f2937; margin-bottom: 12px; font-weight: 700; }
-        h2 { font-size: 36px; color: #1f2937; margin-bottom: 12px; font-weight: 700; }
-        h3 { font-size: 20px; color: #374151; margin: 16px 0; font-weight: 600; }
-        p { font-size: 15px; color: #6b7280; margin: 8px 0; line-height: 1.6; }
+        h1 { font-size: 48px; color: #1f2937; margin-bottom: 16px; font-weight: 800; }
+        h2 { font-size: 42px; color: #1f2937; margin-bottom: 16px; font-weight: 800; }
+        h3 { font-size: 22px; color: #374151; margin: 20px 0; font-weight: 700; }
+        p { font-size: 16px; color: #6b7280; margin: 10px 0; line-height: 1.6; }
 
         .info-box {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 24px;
-            border-radius: 8px;
-            margin: 24px 0;
+            padding: 32px;
+            border-radius: 16px;
+            margin: 32px 0;
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
         }
 
-        .info-box h3 { color: white; margin-top: 0; }
-        .info-box p { color: rgba(255,255,255,0.9); }
+        .info-box h3 { color: white; margin-top: 0; font-size: 24px; }
+        .info-box p { color: rgba(255,255,255,0.95); font-size: 15px; }
 
         .success-msg {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
+            padding: 28px;
+            margin: 28px 0;
+            border-radius: 16px;
             text-align: center;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.3);
         }
 
         @media (max-width: 768px) {
+            .content { padding: 24px; }
             .auth-container { max-width: 100%; margin: 30px 20px; }
-            .content { padding: 20px; }
-            h1 { font-size: 28px; }
+            h1 { font-size: 32px; }
+            h2 { font-size: 28px; }
             .products-grid { grid-template-columns: 1fr; }
             .button-group { flex-direction: column; }
             .button-group .btn { width: 100%; }
@@ -436,7 +554,7 @@
         <div class="header-content">
             <div class="logo">
                 <span>🛒</span>
-                <span>ScanGo</span>
+                <span>ScanGo Pro</span>
             </div>
             <div class="header-right">
                 <div class="user-email" id="user-display" style="display:none;">
@@ -449,20 +567,21 @@
 
     <!-- HOME PAGE -->
     <div id="home-page" class="container content">
-        <h1>🎯 Welcome to ScanGo</h1>
-        <p style="font-size: 18px; margin-bottom: 24px;">The Future of Retail Shopping - Fast, Secure & Easy</p>
+        <h1>🎯 Welcome to ScanGo Pro</h1>
+        <p style="font-size: 18px; margin-bottom: 28px; color: #6b7280;">The Next Generation of Smart QR Code Shopping</p>
         
         <div class="info-box">
-            <h3>✨ Why Choose ScanGo?</h3>
-            <p>⚡ Lightning-Fast Checkout in seconds</p>
-            <p>🔒 Bank-Level Security for your payments</p>
-            <p>📱 Works on all devices seamlessly</p>
-            <p>💳 Multiple payment options available</p>
-            <p>🌍 Shop from anywhere, anytime</p>
+            <h3>✨ Why Choose ScanGo Pro?</h3>
+            <p>⚡ Lightning-Fast QR Scanning & Checkout</p>
+            <p>🔒 Bank-Level Security with End-to-End Encryption</p>
+            <p>📱 Works on ALL Devices - Phone, Tablet, Desktop</p>
+            <p>💳 Multiple Payment Options - UPI, Cards, Digital Wallets</p>
+            <p>🌍 Shop From Anywhere, Anytime, Global Access</p>
+            <p>📊 Real-Time Order Tracking & Digital Receipts</p>
         </div>
 
         <div style="text-align: center;">
-            <button class="btn btn-primary" onclick="goToPage('login')" style="max-width: 300px;">🛍️ Start Shopping Now</button>
+            <button class="btn btn-success" onclick="goToPage('login')" style="max-width: 400px; font-size: 18px; padding: 16px 40px;">🛍️ Start Shopping Now</button>
         </div>
     </div>
 
@@ -471,7 +590,7 @@
         <div class="auth-container">
             <div class="auth-header">
                 <h1>🔐 Login</h1>
-                <p>Access your ScanGo account</p>
+                <p>Access Your ScanGo Pro Account</p>
             </div>
             <div class="auth-body">
                 <input type="email" id="login-email" placeholder="📧 Enter your email" required>
@@ -495,7 +614,7 @@
         <div class="auth-container">
             <div class="auth-header">
                 <h1>✨ Create Account</h1>
-                <p>Join ScanGo today</p>
+                <p>Join ScanGo Pro Today</p>
             </div>
             <div class="auth-body">
                 <input type="text" id="register-name" placeholder="👤 Full Name" required>
@@ -520,13 +639,21 @@
         </div>
     </div>
 
-    <!-- SCANNER PAGE -->
+    <!-- QR SCANNER PAGE -->
     <div id="scan-page" class="hidden">
         <div class="container">
             <div class="content">
-                <h2>📱 Browse Products</h2>
-                <p style="color: #6b7280; margin-bottom: 24px;">Select products to add to your cart</p>
+                <h2>📱 QR Code Scanner</h2>
+                <p style="color: #6b7280; margin-bottom: 24px;">Scan product QR codes or click products below</p>
 
+                <div class="scanner-section">
+                    <div class="scanner-label">📷 Point Your Camera at QR Codes</div>
+                    <div class="scanner-status">🔍 Ready to Scan - Keep camera steady</div>
+                    <div id="reader"></div>
+                    <div id="scan-result" class="qr-result hidden"></div>
+                </div>
+
+                <h3 style="margin-top: 40px;">Or Select from Products Below:</h3>
                 <div class="products-grid" id="products-container"></div>
 
                 <div class="button-group">
@@ -542,6 +669,7 @@
         <div class="container">
             <div class="content">
                 <h2>🛒 Shopping Cart</h2>
+                <p style="color: #6b7280; margin-bottom: 24px;">Review your scanned items</p>
                 
                 <div id="cart-items"></div>
 
@@ -550,7 +678,7 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="btn btn-primary" onclick="goToPage('scan')">← Continue Shopping</button>
+                    <button class="btn btn-primary" onclick="goToPage('scan')">← Continue Scanning</button>
                     <button class="btn btn-success" onclick="goToPage('checkout')">Checkout →</button>
                 </div>
             </div>
@@ -562,13 +690,14 @@
         <div class="container">
             <div class="content">
                 <h2>💳 Secure Checkout</h2>
+                <p style="color: #6b7280; margin-bottom: 24px;">Complete your purchase safely</p>
                 
                 <div class="summary-box">
                     <h3 style="margin-top: 0;">📦 Order Summary</h3>
                     <div id="checkout-summary"></div>
-                    <div class="summary-line" style="border-top: 2px solid #3b82f6; padding-top: 12px; margin-top: 12px; font-weight: 700; font-size: 16px;">
-                        <span>TOTAL:</span>
-                        <span style="color: #3b82f6;">$<span id="checkout-total">0.00</span></span>
+                    <div class="summary-line" style="border-top: 3px solid #667eea; padding-top: 16px; margin-top: 16px; font-weight: 800; font-size: 18px;">
+                        <span>TOTAL AMOUNT:</span>
+                        <span style="color: #667eea;">$<span id="checkout-total">0.00</span></span>
                     </div>
                 </div>
 
@@ -576,24 +705,24 @@
                 <div class="payment-methods" id="payment-methods">
                     <div class="payment-option active" onclick="selectPayment('upi', this)">
                         <div class="payment-icon">📱</div>
-                        <div>UPI</div>
+                        <div class="payment-name">UPI</div>
                     </div>
                     <div class="payment-option" onclick="selectPayment('visa', this)">
                         <div class="payment-icon">💳</div>
-                        <div>Visa</div>
+                        <div class="payment-name">Visa</div>
                     </div>
                     <div class="payment-option" onclick="selectPayment('mastercard', this)">
                         <div class="payment-icon">🔴</div>
-                        <div>Mastercard</div>
+                        <div class="payment-name">Mastercard</div>
                     </div>
                     <div class="payment-option" onclick="selectPayment('amex', this)">
                         <div class="payment-icon">🟦</div>
-                        <div>Amex</div>
+                        <div class="payment-name">Amex</div>
                     </div>
                 </div>
 
                 <div id="payment-fields">
-                    <h3>UPI Details</h3>
+                    <h3>UPI Payment</h3>
                     <input type="text" id="upi-id" placeholder="📱 UPI ID (yourname@upi)" required>
                 </div>
 
@@ -618,17 +747,17 @@
         <div class="container">
             <div class="content">
                 <div class="success-msg">
-                    ✅ ORDER CONFIRMED! Thank you for shopping
+                    ✅ ORDER CONFIRMED! Thank you for shopping with ScanGo Pro
                 </div>
 
-                <h2 style="text-align: center; color: #10b981; margin: 24px 0;">🎉 Your Order is Complete</h2>
+                <h2 style="text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 32px 0;">🎉 Your Order is Complete</h2>
                 
                 <div class="summary-box">
                     <h3 style="margin-top: 0;">📋 Order Details</h3>
                     <div id="order-details"></div>
                 </div>
 
-                <p style="text-align: center; color: #6b7280;">A confirmation email has been sent to your registered email address.</p>
+                <p style="text-align: center; color: #6b7280; font-size: 15px;">✅ Confirmation email sent to your registered email address<br>📦 Estimated Delivery: 2-3 Business Days</p>
 
                 <div style="text-align: center;">
                     <button class="btn btn-danger" onclick="logout()">← Logout & Exit</button>
@@ -644,6 +773,8 @@
         let selectedPayment = 'upi';
         let products = [];
         let registeredUsers = JSON.parse(localStorage.getItem('users')) || [];
+        let scanner = null;
+        let scannedProducts = {};
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -685,7 +816,7 @@
                 showFieldError('register-email', 'Email is required');
                 hasError = true;
             } else if (!validateEmail(email)) {
-                showFieldError('register-email', 'Please enter a valid email address');
+                showFieldError('register-email', 'Please enter a valid email');
                 hasError = true;
             }
 
@@ -695,7 +826,7 @@
             }
 
             if (!password || password.length < 6) {
-                showFieldError('register-password', 'Password must be at least 6 characters');
+                showFieldError('register-password', 'Password must be 6+ characters');
                 hasError = true;
             }
 
@@ -716,7 +847,7 @@
             registeredUsers.push(user);
             localStorage.setItem('users', JSON.stringify(registeredUsers));
 
-            showToast('✅ Account created successfully! Please login.', 'success');
+            showToast('✅ Account created! Please login.', 'success');
             setTimeout(() => goToPage('login'), 1500);
         }
 
@@ -732,7 +863,7 @@
                 showFieldError('login-email', 'Email is required');
                 hasError = true;
             } else if (!validateEmail(email)) {
-                showFieldError('login-email', 'Please enter a valid email address');
+                showFieldError('login-email', 'Please enter a valid email');
                 hasError = true;
             }
 
@@ -764,6 +895,9 @@
         }
 
         function logout() {
+            if (scanner) {
+                scanner.clear();
+            }
             currentUser = null;
             cart = [];
             document.getElementById('user-display').style.display = 'none';
@@ -785,7 +919,6 @@
                 products = data.products;
                 displayProducts();
             } catch (error) {
-                console.error('Error:', error);
                 products = [
                     { id: 'PROD-001', name: 'Laptop', price: 999, icon: '💻' },
                     { id: 'PROD-002', name: 'Mouse', price: 29, icon: '🖱️' },
@@ -806,7 +939,10 @@
                 card.className = 'product-card';
                 card.onclick = () => addProduct(product.id, product.name, product.price);
                 card.innerHTML = `
-                    <div class="product-icon">${product.icon}</div>
+                    <div class="product-icon">
+                        ${product.icon}
+                        <div class="product-qr-badge">QR CODE</div>
+                    </div>
                     <div class="product-info">
                         <div class="product-name">${product.name}</div>
                         <div class="product-price">$${product.price}</div>
@@ -816,6 +952,33 @@
             });
         }
 
+        function startScanning() {
+            const html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: 250 },
+                false
+            );
+
+            html5QrcodeScanner.render(onScanSuccess, onScanError);
+            scanner = html5QrcodeScanner;
+        }
+
+        function onScanSuccess(decodedText) {
+            const product = products.find(p => p.id === decodedText);
+            if (product) {
+                addProduct(product.id, product.name, product.price);
+                document.getElementById('scan-result').textContent = `✅ Added: ${product.name} - $${product.price}`;
+                document.getElementById('scan-result').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('scan-result').classList.add('hidden');
+                }, 2000);
+            }
+        }
+
+        function onScanError(error) {
+            // Silent error
+        }
+
         function addProduct(id, name, price) {
             const item = cart.find(i => i.id === id);
             if (item) {
@@ -823,7 +986,7 @@
             } else {
                 cart.push({ id, name, price, qty: 1 });
             }
-            showToast(`✅ ${name} added to cart!`, 'success');
+            showToast(`✅ ${name} added!`, 'success');
         }
 
         function displayCart() {
@@ -831,7 +994,7 @@
             let total = 0;
             
             if (cart.length === 0) {
-                html = '<p style="text-align: center; color: #9ca3af; padding: 40px;">Your cart is empty</p>';
+                html = '<p style="text-align: center; color: #9ca3af; padding: 40px; font-size: 16px;">Your cart is empty</p>';
             } else {
                 cart.forEach((item, i) => {
                     const itemTotal = item.price * item.qty;
@@ -842,7 +1005,7 @@
                                 <div class="item-name">${item.name}</div>
                                 <div class="item-price">$${item.price} × ${item.qty} = $${itemTotal.toFixed(2)}</div>
                             </div>
-                            <button class="btn btn-danger" onclick="removeItem(${i})" style="width: auto; padding: 8px 12px; margin: 0;">Remove</button>
+                            <button class="btn btn-danger" onclick="removeItem(${i})" style="width: auto; padding: 8px 14px; margin: 0; font-size: 14px;">Remove</button>
                         </div>
                     `;
                 });
@@ -864,7 +1027,7 @@
 
             if (method === 'upi') {
                 document.getElementById('payment-fields').innerHTML = `
-                    <h3>UPI Details</h3>
+                    <h3>UPI Payment</h3>
                     <input type="text" id="upi-id" placeholder="📱 UPI ID (yourname@upi)" required>
                 `;
                 document.getElementById('card-fields').style.display = 'none';
@@ -888,7 +1051,7 @@
             const finalTotal = (parseFloat(total) + parseFloat(tax)).toFixed(2);
             
             html += `
-                <div class="summary-line" style="border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 8px;">
+                <div class="summary-line" style="border-top: 2px solid #e5e7eb; padding-top: 12px; margin-top: 12px;">
                     <span>Subtotal</span><span>$${total.toFixed(2)}</span>
                 </div>
                 <div class="summary-line"><span>Tax (10%)</span><span>$${tax}</span></div>
@@ -933,15 +1096,15 @@
             const finalTotal = (parseFloat(total) + parseFloat(tax)).toFixed(2);
             
             html += `
-                <div class="summary-line" style="border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 8px;"><span>Subtotal</span><span>$${total.toFixed(2)}</span></div>
+                <div class="summary-line" style="border-top: 2px solid #e5e7eb; padding-top: 12px; margin-top: 12px;"><span>Subtotal</span><span>$${total.toFixed(2)}</span></div>
                 <div class="summary-line"><span>Tax</span><span>$${tax}</span></div>
-                <div class="summary-line" style="font-weight: 700; color: #3b82f6; border-top: 2px solid #3b82f6; padding-top: 8px; margin-top: 8px;"><span>TOTAL</span><span>$${finalTotal}</span></div>
+                <div class="summary-line" style="font-weight: 800; color: #667eea; border-top: 3px solid #667eea; padding-top: 12px; margin-top: 12px;"><span>TOTAL</span><span>$${finalTotal}</span></div>
                 <div class="summary-line"><span><strong>Delivery:</strong></span><span>${new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString()}</span></div>
             `;
             
             document.getElementById('order-details').innerHTML = html;
             cart = [];
-            showToast('✅ Order placed successfully!', 'success');
+            showToast('✅ Payment successful!', 'success');
             goToPage('confirmation');
         }
 
@@ -951,6 +1114,7 @@
             
             if (page === 'cart') displayCart();
             if (page === 'checkout') displayCheckout();
+            if (page === 'scan') setTimeout(() => startScanning(), 500);
             
             window.scrollTo(0, 0);
         }
